@@ -1,0 +1,1 @@
+export 'user/user_data_firestore_response.dart';

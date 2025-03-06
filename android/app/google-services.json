@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "996146573956",
+    "project_id": "recorder-app-3fffd",
+    "storage_bucket": "recorder-app-3fffd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996146573956:android:a28a371d0196853c4588d1",
+        "android_client_info": {
+          "package_name": "com.example.recorder_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv59OYjWKVewxADWEgKyXiWilYTfeoUl0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
