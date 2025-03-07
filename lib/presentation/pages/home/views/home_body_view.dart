@@ -44,7 +44,7 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
             const SizedBox(height: 20),
             Center(
               child: Text(
-                'Mis Recordatorios',
+                ( _currentPage == 2 ) ? 'Mis Favoritos' : 'Mis Recordatorios',
                 style: textStyle.titleMedium,
               ),
             ),
@@ -72,7 +72,16 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
                     duration: const Duration(milliseconds: 300), 
                     curve: Curves.easeInOut
                   ),
-                  child: Text('Ordenar por Estado', style: textStyle.bodySmall,),
+                  child: Text('Ordenar', style: textStyle.bodySmall,),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () => _pageController.animateToPage(
+                    2,
+                    duration: const Duration(milliseconds: 300), 
+                    curve: Curves.easeInOut
+                  ),
+                  child: Text('Favoritos', style: textStyle.bodySmall,),
                 ),
               ],
             ),
@@ -92,6 +101,7 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
                 children: [
                   _RemindersPage(pageController: _pageController,),
                   _SortOptionsPage( pageController: _pageController ,),
+                  _FavoritesPage( pageController: _pageController ,),
                 ],
               ),
             ),
@@ -229,3 +239,53 @@ class _SortOptionsPage extends ConsumerWidget {
     );
   }
 }
+
+
+
+class _FavoritesPage extends ConsumerStatefulWidget {
+
+    final PageController pageController;
+
+  const _FavoritesPage({
+    required this.pageController
+  });
+
+  @override
+  FavoritePageState createState() => FavoritePageState(); 
+}
+
+class FavoritePageState extends ConsumerState<_FavoritesPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    loadFavorites();
+  }
+
+  void loadFavorites() async {
+    await ref.read( favoriteRemindersProvider.notifier ).loadReminders();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    
+    final appTextTheme = Theme.of(context).textTheme;
+    final favoriteReminders = ref.watch( favoriteRemindersProvider ).values.toList();
+
+    if ( favoriteReminders.isEmpty ) {
+      return Center(
+        child: Text('No tienes recordatorios favoritos', style: appTextTheme.bodyMedium),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: favoriteReminders.length,
+      itemBuilder: (context, index) {
+        final reminder = favoriteReminders[index];
+        return ReminderCard(reminder: reminder);
+      },
+    );
+
+  }
+}
+

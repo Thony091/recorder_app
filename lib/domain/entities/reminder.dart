@@ -1,4 +1,10 @@
+import 'package:isar/isar.dart';
+
+part 'reminder.g.dart';
+@collection
 class Reminder{
+
+  Id? isarId;
 
   final int id;
   final String title;

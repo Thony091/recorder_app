@@ -17,6 +17,7 @@ class ReminderCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final textStyle = AppTheme().getTheme().textTheme;
+    final isFavoriteFuture = ref.watch(isFavoriteProvider(reminder.id));
 
     return Container(
       width: double.infinity,
@@ -133,19 +134,53 @@ class ReminderCard extends ConsumerWidget {
               ],
             ),
           ),
-
+          // Favorite Icon
           Positioned(
-            top: -15,
-            right: -12,
-            child: Row(
-              children: [
-                Icon(
-                  LucideIcons.bell, 
-                  color: Colors.green,
-                  size: 55,
+            top: 0,
+            right: 0,
+            child:               
+              SizedBox(
+                height: 150,
+                child: Column(
+                  children: [
+                    IconButton(
+                      icon: isFavoriteFuture.when(
+                        loading: () => const CircularProgressIndicator(strokeWidth: 2 ),
+                        data: (isFavorite) => isFavorite
+                          ? const Icon( 
+                              Icons.star, 
+                              color: Colors.yellow, 
+                              size: 35,
+                              shadows: [ 
+                                Shadow( 
+                                  color: Colors.black54, 
+                                  blurRadius: 8, 
+                                  offset: Offset(0, 0) 
+                                ) 
+                              ]
+                            )
+                          : const Icon( 
+                              Icons.star, 
+                              color: Colors.white, 
+                              size: 35,
+                              shadows: [ 
+                                Shadow( 
+                                  color: Colors.black54, 
+                                  blurRadius: 8, 
+                                  offset: Offset(0, 0) 
+                                ) 
+                              ]
+                            ), 
+                        error: (_, __) => throw UnimplementedError(),
+                      ),
+                      onPressed: () async {
+                        await ref.watch( favoriteRemindersProvider.notifier ).toggleFavorite(reminder);
+                        ref.invalidate( isFavoriteProvider(reminder.id) );
+                      }, 
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
           ),
 
           Positioned(
