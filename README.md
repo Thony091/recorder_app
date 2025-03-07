@@ -11,8 +11,11 @@ Recorder App es una aplicación móvil desarrollada en **Flutter**, diseñada pa
 Para acceder rápidamente a la aplicación sin necesidad de crear una cuenta, puedes usar las siguientes credenciales de prueba:
 
 |    Correo Electrónico   	|      Contraseña   	|
+
 |     usuario@test.com	    |        123456       |
+
 |    usuario2@test.com	    |        654321       |
+
 
 📌 Estas cuentas ya están registradas y contienen recordatorios preconfigurados para probar la funcionalidad de la aplicación.
 
@@ -44,7 +47,9 @@ Para acceder rápidamente a la aplicación sin necesidad de crear una cuenta, pu
 
 ### 3️⃣ Sincronización en Tiempo Real con Firestore
 ✔️ Cada recordatorio creado se almacena en Firebase Firestore.
+
 ✔️ Si el usuario inicia sesión en otro dispositivo, los recordatorios se recuperan automáticamente.
+
 ✔️ Autenticación con Firebase Authentication para mantener los datos del usuario seguros.
 
 ---
@@ -107,6 +112,7 @@ Para acceder rápidamente a la aplicación sin necesidad de crear una cuenta, pu
 Antes de empezar, asegúrate de tener instaladas las siguientes herramientas:
 
 
+
 |   Herramienta   	|    Versión Requerida  	|       Descargar           |
 
 |   Flutter	        |         3.27.1          |       flutter.dev         |
@@ -114,6 +120,7 @@ Antes de empezar, asegúrate de tener instaladas las siguientes herramientas:
 |   Android Studio	|    Última versión       |  	developer.android.com   |
 
 |   Java JDK	      |           17	          |      oracle.com/java/     |
+
 
 
 2️⃣ Descargar el proyecto Recorder App:
