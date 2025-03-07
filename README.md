@@ -16,7 +16,10 @@ Para acceder rápidamente a la aplicación sin necesidad de crear una cuenta, pu
 
 📌 Estas cuentas ya están registradas y contienen recordatorios preconfigurados para probar la funcionalidad de la aplicación.
 
+---
+
 ## 🔹 Funcionalidades Principales
+
 ### 1️⃣ Creación de Recordatorios con Notificaciones Programadas
 ✔️ Permite crear recordatorios con fecha y hora exactas.
 ✔️ Las notificaciones se programan localmente en el dispositivo.
@@ -79,6 +82,7 @@ Para acceder rápidamente a la aplicación sin necesidad de crear una cuenta, pu
 ✅ **timezone y flutter_timezone** → Para manejar correctamente las zonas horarias en notificaciones programadas.
 
 ## 🔹 Guía para ejecutar el proyecto en Android
+
 1️⃣ Requisitos previos
 Antes de empezar, asegúrate de tener instaladas las siguientes herramientas:
 
@@ -87,19 +91,25 @@ Antes de empezar, asegúrate de tener instaladas las siguientes herramientas:
 |   Android Studio	|    Última versión       |  	developer.android.com   |
 |   Java JDK	      |           17	          |      oracle.com/java/     |
 
+
 2️⃣ Descargar el proyecto Recorder App:
 
 Descarga el proyecto desde el repositorio de GitHub.
+
 git clone https://github.com/Thony091/recorder_app.git
 
 3️⃣ Abrir el proyecto en Visual Studio Code o Android Studio
+
 Abre la carpeta del proyecto en VS Code o Android Studio.
 
 4️⃣ Instalar las dependencias del proyecto
+
 Ejecuta el siguiente comando en la terminal para instalar las dependencias:
 
 - flutter pub get
+
 5️⃣ Compilar y ejecutar el proyecto
+
 Ejecuta este comando en la terminal:
 
 - flutter run
@@ -118,7 +128,7 @@ Si no puedes ejecutar la app, descarga el APK desde GitHub Releases.
 
 📌 Enlace de descarga:
 
-➡ 📥 Descargar última versión del APK
+➡ [📥 Descargar última versión del APK] (https://github.com/Thony091/recorder_app/releases/download/v0.1.0/app-release.apk)
 
 Instrucciones:
 
