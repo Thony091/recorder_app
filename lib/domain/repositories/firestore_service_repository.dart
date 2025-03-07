@@ -3,4 +3,6 @@ abstract class FirestoreServiceRepository {
 
   Future<Map<String,dynamic>> getUserDataFromFirestore(String collectionName, String docName);
 
+  Future updateDataInFirestore(Map<String, dynamic> data, String collectionName, String docName);
+
 }

@@ -18,5 +18,10 @@ class FirestoreServiceRepositoryImpl implements FirestoreServiceRepository {
   Future<Map<String,dynamic>> getUserDataFromFirestore(String collectionName, String docName) async {
     return await datasource.getDataFromFirestore(collectionName, docName);
   }
+
+  @override
+  Future updateDataInFirestore(Map<String, dynamic> data, String collectionName, String docName) async {
+    await datasource.updateDataInFirestore(data, collectionName, docName);
+  }
   
 }

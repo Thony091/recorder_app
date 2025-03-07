@@ -1,16 +1,20 @@
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+import 'package:recorder_app/config/services/notifications/notification_service.dart';
 import 'package:recorder_app/domain/domain.dart';
 import 'package:recorder_app/infrastructure/mappers/mappers_container.dart';
 import 'package:recorder_app/presentation/presentation.dart';
 
 final remiderFormProvider = StateNotifierProvider.autoDispose< RemiderFormNotifier,RemiderFormState >((ref) {
 
+  final updateReminderCallback = ref.watch( homeProvider.notifier ).updateReminder;
   final createReminderCallback = ref.watch( homeProvider.notifier ).createReminder;
   final getRemidersCallback   = ref.watch( homeProvider.notifier ).getRemidersList;
 
   return RemiderFormNotifier(
+    updateReminderCallback: updateReminderCallback,
     createReminderCallback: createReminderCallback,
     getRemidersCallback: getRemidersCallback
   );
@@ -18,10 +22,12 @@ final remiderFormProvider = StateNotifierProvider.autoDispose< RemiderFormNotifi
 
 class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
+  final Function(Map<String, dynamic>) updateReminderCallback;
   final Function(Map<String, dynamic>) createReminderCallback;
   final Function() getRemidersCallback;
 
   RemiderFormNotifier({
+    required this.updateReminderCallback,
     required this.createReminderCallback,
     required this.getRemidersCallback,
   }): super( RemiderFormState() );
@@ -78,6 +84,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
   }
 
+  /// Función para crear un nuevo recordatorio.
   onFormSubmit() async {
 
     try {
@@ -89,28 +96,63 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
       final reminderList = getRemidersCallback();
 
-      // Crear el nuevo recordatorio
-      int newId = (reminderList.isNotEmpty)
-        ? reminderList.map((r) => r.id ?? 0).reduce((a, b) => a > b ? a : b) + 10
-        : 10; // Si está vacío, empezamos desde 10
+      switch ( state.isEditReminder ) {
+        case true:
 
-      final newReminderList = reminderList.map((r) => UserDataMapper.userDataToModel( r )).toList();
+          // Buscar el recordatorio por ID y actualizarlo
+          int index = reminderList.indexWhere((r) => r.id == state.reminderSelected!.id);
+          if (index == -1) return; // No encontrado
+          final updatedData = {
+            'id': state.reminderSelected!.id,
+            'title': state.title.value,
+            'description': state.description.value,
+            'time': state.selectedTime.value,
+            'frequency': state.selectedFrequency,
+            'status': state.selectedStatus,
+          };
 
-      final newReminder = {
-        'id': newId,
-        'title': state.title.value,
-        'description': state.description.value,
-        'time': state.selectedTime.value,
-        'frequency': state.selectedFrequency,
-        'status': state.selectedStatus,
-      };
+          reminderList.removeAt(index);
 
-      // Mapa que se enviará a Firestore
-      final Map<String, dynamic> firestoreData = {
-        'reminders': [...newReminderList.map((r) => r.toJson()), newReminder]
-      };
+          final newReminderMap = reminderList.map((r) => UserDataMapper.userDataToModel(r)).toList();
 
-      await createReminderCallback( firestoreData );
+
+          final Map<String, dynamic> newFirestoreData = { 
+            'reminders': [ ...newReminderMap.map((r) => r.toJson()), updatedData ]
+          }; 
+
+          await updateReminderCallback( newFirestoreData );
+
+          await _scheduleNotification( index, updatedData );
+
+          break;
+
+        case false:
+          // Crear el nuevo recordatorio
+          int newId = (reminderList.isNotEmpty)
+            ? reminderList.map((r) => r.id ?? 0).reduce((a, b) => a > b ? a : b) + 10
+            : 10; // Si está vacío, empezamos desde 10
+
+          final newReminderList = reminderList.map((r) => UserDataMapper.userDataToModel( r )).toList();
+
+          final newReminder = {
+            'id': newId,
+            'title': state.title.value,
+            'description': state.description.value,
+            'time': state.selectedTime.value,
+            'frequency': state.selectedFrequency,
+            'status': state.selectedStatus,
+          };
+
+          // Mapa que se enviará a Firestore
+          final Map<String, dynamic> firestoreData = {
+            'reminders': [...newReminderList.map((r) => r.toJson()), newReminder]
+          };
+
+          await createReminderCallback( firestoreData );
+          await _scheduleNotification(newId, newReminder);
+
+          break;
+      }
 
       state = state.copyWith(isPosting: false);
 
@@ -122,6 +164,83 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
   }
 
+
+  Future<void> _scheduleNotification(int id, Map<String, dynamic> reminder) async {
+    final String title = reminder['title'] ?? 'Sin título';
+    final String body = reminder['description'] ?? 'Sin descripción';
+    final String time = reminder['time'] ?? '00:00';
+    final String? frequency = reminder['frequency'];
+
+    final now = DateTime.now();
+    final List<String> timeParts = time.split(':');
+    final DateTime scheduledDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1]),
+    );
+
+    if (frequency == 'Único') {
+      await NotificationService.scheduleNotification(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+      );
+    } else {
+      RepeatInterval repeatInterval;
+      switch (frequency) {
+        case 'Diario':
+          repeatInterval = RepeatInterval.daily;
+          break;
+        case 'Semanal':
+          repeatInterval = RepeatInterval.weekly;
+          break;
+        default:
+          print("⏳ Frecuencia no soportada para notificaciones repetitivas.");
+          return;
+      }
+
+      await NotificationService.scheduleRepeatingNotification(
+        id: id,
+        title: title,
+        body: body,
+        repeatInterval: repeatInterval,
+      );
+    }
+  }
+
+  void setEditReminder(bool editReminder) {
+    state = state.copyWith(isEditReminder: editReminder);
+  }
+
+  void setReminderSelected(Reminder reminder) {
+    state = state.copyWith(reminderSelected: reminder);
+  }
+
+  Future<void> deleteReminder() async {
+
+    try {
+      
+      final reminderList = getRemidersCallback();
+      // Buscar el recordatorio por ID y actualizarlo
+      int index = reminderList.indexWhere((r) => r.id == state.reminderSelected!.id);
+      if (index == -1) return; // No encontrado
+
+      reminderList.removeAt(index);
+
+      final newReminderMap = reminderList.map((r) => UserDataMapper.userDataToModel(r)).toList();
+      final Map<String, dynamic> newFirestoreData = { 
+        'reminders': [ ...newReminderMap.map((r) => r.toJson()) ]
+      }; 
+      await updateReminderCallback( newFirestoreData );
+
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
 }
 
 class RemiderFormState {
@@ -129,12 +248,14 @@ class RemiderFormState {
   final bool isPosting;
   final bool isFormPosted;
   final bool isValid;
+  final bool isEditReminder;
   final TitleForm title;
   final DescriptionForm description;
   final RemiderTime selectedTime;
   final String selectedFrequency;
   final String selectedStatus;
   final List<Reminder> reminders;
+  final Reminder? reminderSelected;
 
   RemiderFormState({
     this.isPosting = false,
@@ -146,6 +267,8 @@ class RemiderFormState {
     this.selectedFrequency = 'Único',
     this.selectedStatus = 'Pendiente',
     this.reminders = const [],
+    this.isEditReminder = false,
+    this.reminderSelected,
   });
 
   RemiderFormState copyWith({
@@ -158,6 +281,8 @@ class RemiderFormState {
     String? selectedFrequency,
     String? selectedStatus,
     List<Reminder>? reminders,
+    bool? isEditReminder,
+    Reminder? reminderSelected,
   }) => RemiderFormState(
     isPosting: isPosting ?? this.isPosting,
     isFormPosted: isFormPosted ?? this.isFormPosted,
@@ -168,6 +293,8 @@ class RemiderFormState {
     selectedFrequency: selectedFrequency ?? this.selectedFrequency,
     selectedStatus: selectedStatus ?? this.selectedStatus,
     reminders: reminders ?? this.reminders,
+    isEditReminder: isEditReminder ?? this.isEditReminder,
+    reminderSelected: reminderSelected ?? this.reminderSelected,
   );
 
   @override
@@ -181,8 +308,10 @@ class RemiderFormState {
       description: $description,
       selectedTime: $selectedTime,
       selectedFrequency: $selectedFrequency,
-      selectedStatus: $selectedStatus
-      reminders: $reminders
+      selectedStatus: $selectedStatus,
+      reminders: $reminders,
+      isEditReminder: $isEditReminder,
+      reminderSelected: $reminderSelected,
     }
     ''';
   }

@@ -15,6 +15,7 @@ class CustomProductField extends StatelessWidget {
   final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
   final Function()? onTap;
+  final Function()? onTapSuffixIcon;
   final String? Function(String?)? validator;
   final bool readOnly;
   final Color color;
@@ -22,6 +23,7 @@ class CustomProductField extends StatelessWidget {
   final List<Shadow>? textShadows;
   final double? textSize;
   final FontWeight? textWeight;
+  final Icon? suffixIcon;
 
 
   const CustomProductField({
@@ -40,11 +42,13 @@ class CustomProductField extends StatelessWidget {
     this.validator,
     this.readOnly = false,
     this.onTap,
+    this.onTapSuffixIcon,
     this.color = Colors.white,
     this.textColor = Colors.black,
     this.textShadows,
     this.textSize,
     this.textWeight,
+    this.suffixIcon,
   });
 
   @override
@@ -60,6 +64,7 @@ class CustomProductField extends StatelessWidget {
     const borderRadius = Radius.circular(15);
 
     return Container(
+      constraints: BoxConstraints( maxHeight: 60 ),
       // padding: const EdgeInsets.only(bottom: 0, top: 15),
       decoration: BoxDecoration(
         color: color,
@@ -78,42 +83,50 @@ class CustomProductField extends StatelessWidget {
             )
         ]
       ),
-      child: TextFormField(
-        readOnly: readOnly,
-        onChanged: onChanged,
-        onTap: onTap,
-        onFieldSubmitted: onFieldSubmitted,
-        validator: validator,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        style: const TextStyle( fontSize: 20, color: Colors.black87 ),
-        maxLines: maxLines,
-        initialValue: initialValue,
-        decoration: InputDecoration(
-          floatingLabelBehavior: maxLines > 1 ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
-          floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
-          enabledBorder: border,
-          focusedBorder: border,
-          errorBorder: border.copyWith( borderSide: const BorderSide( color: Colors.transparent )),
-          focusedErrorBorder: border.copyWith( borderSide: const BorderSide( color: Colors.transparent )),
-          isDense: true,
-          label: label != null 
-            ? Text( 
-              label!, 
-              style: TextStyle( 
-                color: textColor, 
-                shadows: textShadows, 
-                fontWeight: textWeight, 
-                fontSize: textSize 
-              ), 
-            )
-            : null,
-          hintText: hint,
-          errorText: errorMessage,
-          focusColor: colors.primary,
-          // icon: Icon( Icons.supervised_user_circle_outlined, color: colors.primary, )
+      child: SizedBox(
+        height: 60,
+        child: TextFormField(
+          readOnly: readOnly,
+          onChanged: onChanged,
+          onTap: onTap,
+          onFieldSubmitted: onFieldSubmitted,
+          validator: validator,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          style: const TextStyle( fontSize: 20, color: Colors.black87 ),
+          maxLines: maxLines,
+          initialValue: initialValue,
+          decoration: InputDecoration(
+            floatingLabelBehavior: maxLines > 1 ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
+            floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
+            enabledBorder: border,
+            focusedBorder: border,
+            errorBorder: border.copyWith( borderSide: const BorderSide( color: Colors.transparent )),
+            focusedErrorBorder: border.copyWith( borderSide: const BorderSide( color: Colors.transparent )),
+            isDense: true,
+            label: label != null 
+              ? Text( 
+                label!, 
+                style: TextStyle( 
+                  color: textColor, 
+                  shadows: textShadows, 
+                  fontWeight: textWeight, 
+                  fontSize: textSize 
+                ), 
+              )
+              : null,
+            hintText: hint,
+            errorText: errorMessage,
+            focusColor: colors.primary,
+            suffixIcon: suffixIcon != null
+              ? GestureDetector(
+                  onTap: onTapSuffixIcon,
+                  child: suffixIcon,
+                )
+              : null,
+          ),
         ),
-      ),
+      ),  
     );
   }
 }

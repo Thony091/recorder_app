@@ -42,7 +42,7 @@ class AppTheme {
         color: Colors.black87,
       ), 
       bodyMedium: TextStyle(
-        fontSize: 18,
+        fontSize: 17,
         color: Colors.black87,
       ), 
       bodySmall: TextStyle(

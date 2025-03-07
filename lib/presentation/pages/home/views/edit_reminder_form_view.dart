@@ -2,19 +2,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/theme/app_theme.dart';
+import 'package:recorder_app/domain/domain.dart';
 import 'package:recorder_app/presentation/presentation.dart';
 
-class ReminderFormView extends ConsumerStatefulWidget {
+class EditReminderFormView extends ConsumerStatefulWidget {
 
-  static const name = 'ReminderFormView';
+  static const name = 'EditReminderFormView';
+  final Reminder? reminder;
 
-  const ReminderFormView({super.key});
+  const EditReminderFormView({
+    super.key,
+    required this.reminder,
+  });
 
   @override
   ReminderFormViewState createState() => ReminderFormViewState();
 }
 
-class ReminderFormViewState extends ConsumerState<ReminderFormView> {
+class ReminderFormViewState extends ConsumerState<EditReminderFormView> {
   
   final _formKey      = GlobalKey<FormState>();
   final textStyle     = AppTheme().getTheme().textTheme;
@@ -75,10 +80,9 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
   @override 
   Widget build(BuildContext context) {
 
-    final textStyle       = AppTheme().getTheme().textTheme;
-    final homeNotifier    = ref.watch(homeProvider.notifier);
-    final homeState       = ref.watch(homeProvider);
-    final remiderState    = ref.watch(remiderFormProvider);
+    final textStyle = AppTheme().getTheme().textTheme;
+    final homeNotifier = ref.watch(homeProvider.notifier);
+    final remiderState = ref.watch(remiderFormProvider);
     final remiderNotifier = ref.read(remiderFormProvider.notifier);
 
     return SingleChildScrollView(
@@ -93,7 +97,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
               SizedBox(height: 10),
               Center(
                 child: Text(
-                  homeState.editReminder ? 'Editar Recordatorio' : 'Crear Recordatorio',
+                  'Crear Recordatorio',
                   style: textStyle.titleMedium,
                 ),
               ),
@@ -101,7 +105,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
 
               // Campo de Título
               TextFormField(
-                initialValue: homeState.editReminder ? homeState.reminderSelected?.title : null,
+                initialValue: widget.reminder?.title,
                 onChanged: remiderNotifier.onTitleChange,
                 decoration: InputDecoration(
                   labelText: 'Título',
@@ -116,7 +120,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
 
               // Campo de Descripción
               TextFormField(
-                initialValue: homeState.editReminder ? homeState.reminderSelected?.description : null,
+                initialValue: widget.reminder?.description,
                 onChanged: remiderNotifier.onDescriptionChanged,
                 maxLines: 3,
                 decoration: InputDecoration(
@@ -146,7 +150,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
 
               // Frecuencia del recordatorio
               DropdownButtonFormField<String>(
-                value: homeState.editReminder ? homeState.reminderSelected!.frequency : 'Único',
+                value: widget.reminder?.frequency ?? 'Único',
                 decoration: const InputDecoration(
                   labelText: 'Frecuencia',
                   border: OutlineInputBorder(),
@@ -160,7 +164,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
 
               // Estado del recordatorio (inicialmente "Pendiente")
               DropdownButtonFormField<String>(
-                value: homeState.editReminder ? homeState.reminderSelected!.status : 'Pendiente',
+                value: widget.reminder?.status ?? 'Pendiente',
                 decoration: const InputDecoration(
                   labelText: 'Estado',
                   border: OutlineInputBorder(),
@@ -187,7 +191,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
                       ? null
                       : remiderNotifier.onFormSubmit,
                     child: Text(
-                      homeState.editReminder ? 'Editar' : 'Crear',
+                      'Crear',
                       style: textStyle.bodyMedium,
                     ),
                   ),
@@ -200,7 +204,6 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
                       ),
                     ),
                     onPressed: () {
-                      homeNotifier.setIsFormSelected(false);
                       homeNotifier.setEditReminder(false);
                     },
                     child: Text(

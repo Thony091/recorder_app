@@ -6,8 +6,6 @@ class FirestoreServiceDatasourceImpl implements FirestoreServiceDatasource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 
-  
-
   @override
   Future addDataToFirestore(Map<String, dynamic> data, String collectionName, String docName) async {
     try {  
@@ -37,5 +35,14 @@ class FirestoreServiceDatasourceImpl implements FirestoreServiceDatasource {
     }
   }
   
+  @override
+  Future updateDataInFirestore(Map<String, dynamic> data, String collectionName, String docName) async {
+    try {
+      await _firestore.collection(collectionName).doc(docName).update( data );
+    } catch (e) {
+      print(e);
+      throw Exception(e.toString());
+    }
+  }
 
 }

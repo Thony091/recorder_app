@@ -15,7 +15,7 @@ Future<void> main() async {
   
   await NotificationService.initialize(); // Inicializar Notificaciones
 
-    // Pedir permisos en iOS
+  // Pedir permisos en iOS
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin

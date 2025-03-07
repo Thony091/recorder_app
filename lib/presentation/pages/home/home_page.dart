@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/config.dart';
+import 'package:recorder_app/presentation/pages/home/views/edit_reminder_form_view.dart';
 import 'package:recorder_app/presentation/pages/home/views/home_body_view.dart';
 import 'package:recorder_app/presentation/pages/home/views/reminder_form_view.dart';
 import 'package:recorder_app/presentation/presentation.dart';
@@ -17,6 +18,19 @@ class HomePage extends ConsumerStatefulWidget {
 } 
 
 class HomePageState extends ConsumerState<HomePage>{
+
+  @override
+  void initState() {
+    super.initState();
+    
+    Future.microtask(() => ref.read(homeProvider.notifier).getRemiders());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context ) {
 
@@ -24,7 +38,6 @@ class HomePageState extends ConsumerState<HomePage>{
     final color               = AppTheme().getTheme().colorScheme;
     final scaffoldKey         = GlobalKey<ScaffoldState>();
     final homeState           = ref.watch(homeProvider);
-    // final homeNotifier        = ref.watch(homeProvider.notifier);
 
     return  Scaffold(
       drawer:  SideMenu(scaffoldKey: scaffoldKey),
@@ -39,9 +52,9 @@ class HomePageState extends ConsumerState<HomePage>{
         ),
         backgroundColor: color.primary,
       ),
-      body: homeState.isFormSelected 
-        ? ReminderFormView()
-        : HomeBodyView(),
+      body: !homeState.isFormSelected 
+        ? HomeBodyView()
+        : ReminderFormView()
     );
   }
 }

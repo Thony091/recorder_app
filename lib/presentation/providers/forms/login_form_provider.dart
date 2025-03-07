@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:recorder_app/presentation/presentation.dart';
 
-
-
 //! 3 - StateNotifierProvider - consume afuera
 final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier,LoginFormState>((ref) {
 
@@ -40,7 +38,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     );
   }
 
-  onFormSubmit() async {
+  Future<void> onFormSubmit() async {
     _touchEveryField();
 
     if ( !state.isValid ) return;
@@ -66,8 +64,13 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
   }
 
-}
+  setShowPass() {
+    state = state.copyWith(
+      showPassword: !state.showPassword
+    );
+  }
 
+}
 
 //! 1 - State del provider
 class LoginFormState {
@@ -75,6 +78,7 @@ class LoginFormState {
   final bool isPosting;
   final bool isFormPosted;
   final bool isValid;
+  final bool showPassword;
   final Email email;
   final Password password;
 
@@ -82,6 +86,7 @@ class LoginFormState {
     this.isPosting = false,
     this.isFormPosted = false,
     this.isValid = false,
+    this.showPassword = false,
     this.email = const Email.pure(),
     this.password = const Password.pure()
   });
@@ -90,12 +95,14 @@ class LoginFormState {
     bool? isPosting,
     bool? isFormPosted,
     bool? isValid,
+    bool? showPassword,
     Email? email,
     Password? password,
   }) => LoginFormState(
     isPosting: isPosting ?? this.isPosting,
     isFormPosted: isFormPosted ?? this.isFormPosted,
     isValid: isValid ?? this.isValid,
+    showPassword: showPassword ?? this.showPassword,
     email: email ?? this.email,
     password: password ?? this.password,
   );
@@ -107,6 +114,7 @@ class LoginFormState {
     isPosting: $isPosting
     isFormPosted: $isFormPosted
     isValid: $isValid
+    showPassword: $showPassword
     email: $email
     password: $password
 ''';

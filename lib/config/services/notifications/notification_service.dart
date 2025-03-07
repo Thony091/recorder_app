@@ -1,20 +1,49 @@
+import 'dart:io';
+
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 class NotificationService {
+
+  static Future<void> requestNotificationPermission() async {
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+  }
+
+  static Future<void> requestExactAlarmPermission() async {
+  if (Platform.isAndroid && (await AndroidAlarmManager.initialize()) == false) {
+    await AndroidAlarmManager.initialize();
+  }
+}
 
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {
+
+    await requestNotificationPermission();
+    await requestExactAlarmPermission();
+
+    //Obtener zona horaria
+    tz.initializeTimeZones();
+    final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation( tz.getLocation( currentTimeZone ));
+
+
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings(
+    final DarwinInitializationSettings iosInitializationSettings = DarwinInitializationSettings(
       requestBadgePermission: true,
       requestAlertPermission: true,
+      requestSoundPermission: true,
     );
 
-    const InitializationSettings settings = InitializationSettings(
+
+    InitializationSettings settings = InitializationSettings(
       android: androidSettings,
       iOS: iosInitializationSettings
     );
@@ -25,7 +54,19 @@ class NotificationService {
         print("📩 Notificación tocada: ${response.payload}");
       },
     );
-    tz.initializeTimeZones();
+  }
+
+  NotificationDetails notificationDetails(){
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'reminder_channel',
+        'Recordatorios',
+        channelDescription: 'Canal para recordatorios',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(),
+    );
   }
 
   // Mostrar notificación inmediata
@@ -34,26 +75,12 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'reminder_channel',
-      'Recordatorios',
-      channelDescription: 'Canal para recordatorios',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-
-    const iosDetails = DarwinNotificationDetails();
-
-    const NotificationDetails generalNotificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
 
     await flutterLocalNotificationsPlugin.show(
       id, 
       title, 
       body, 
-      generalNotificationDetails,
+      NotificationDetails(),
     );
   }
 
@@ -64,6 +91,15 @@ class NotificationService {
     required String body,
     required DateTime scheduledDate,
   }) async {
+    final now = DateTime.now();
+
+    // 📌 Si la hora ya pasó hoy, mover la notificación al día siguiente
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    print("⏳ Programando notificación para: ${scheduledDate.toLocal()}");
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
@@ -74,40 +110,43 @@ class NotificationService {
           'reminder_channel',
           'Recordatorios',
           channelDescription: 'Canal para recordatorios',
-          importance: Importance.high,
+          importance: Importance.max,
           priority: Priority.high,
         ),
         iOS: DarwinNotificationDetails(),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, 
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time
     );
   }
 
-    // 🔥 Programar Notificaciones Repetitivas
+
   static Future<void> scheduleRepeatingNotification({
     required int id,
     required String title,
     required String body,
-    required RepeatInterval repeatInterval, // Horas, días, semanas, etc.
+    required RepeatInterval repeatInterval,
   }) async {
+    print(" Programando notificación repetitiva: $repeatInterval");
+
     await flutterLocalNotificationsPlugin.periodicallyShow(
       id,
       title,
       body,
       repeatInterval,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'reminder_channel',
           'Recordatorios',
           channelDescription: 'Canal para recordatorios',
-          importance: Importance.high,
+          importance: Importance.max,
           priority: Priority.high,
         ),
         iOS: DarwinNotificationDetails(),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, 
-      // androidAllowWhileIdle: true,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
+
 }

@@ -16,6 +16,12 @@ class HomeBodyView extends ConsumerStatefulWidget {
 class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
   final PageController _pageController = PageController();
 
+  @override
+  void initState() {
+    super.initState();
+    ref.read( homeProvider.notifier ).getRemiders;
+  }
+
   int _currentPage = 0;
 
   void _onPageChanged(int index) {
@@ -29,6 +35,7 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
 
     final textStyle     = AppTheme().getTheme().textTheme;
     final homeNotifier  = ref.read(homeProvider.notifier);
+    final reminderFormNotifier  = ref.watch(remiderFormProvider.notifier); 
 
     return Stack(
       children : [
@@ -48,11 +55,14 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () => _pageController.animateToPage(
-                    0,
-                    duration: const Duration(milliseconds: 300), 
-                    curve: Curves.easeInOut
-                  ),
+                  onPressed: () {
+                    _pageController.animateToPage(
+                      0,
+                      duration: const Duration(milliseconds: 300), 
+                      curve: Curves.easeInOut
+                    );
+                    homeNotifier.setFilter('Todos');
+                  }, 
                   child: Text('Mis Recordatorios', style: textStyle.bodySmall,),
                 ),
                 const SizedBox(width: 10),
@@ -107,6 +117,7 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
             mainAxisAlignment: MainAxisAlignment.start,
             onPressed: () {
               homeNotifier.setIsFormSelected(true);
+              reminderFormNotifier.setEditReminder(false);
             },
           )
         ),
@@ -153,7 +164,7 @@ class _RemindersPage extends ConsumerWidget {
         Expanded(
           child: filteredReminders.isEmpty
               ? Center(
-                  child: Text('No hay recordatorios con este estado', style: textStyle.bodyMedium),
+                  child: Text('No hay recordatorios disponibles', style: textStyle.bodyMedium),
                 )
               : ListView.builder(
                   itemCount: filteredReminders.length,
@@ -178,6 +189,8 @@ class _SortOptionsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    final textStyle     = AppTheme().getTheme().textTheme;
     final homeNotifier = ref.read(homeProvider.notifier);
 
     return ListView(
@@ -189,11 +202,11 @@ class _SortOptionsPage extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         ListTile(
-          title: const Text('Pendientes'),
+          title:  Text('Pendientes', style: textStyle.bodyMedium,),
           leading: const Icon(Icons.pending_actions),
           onTap: () {
             homeNotifier.setFilter('Pendiente');
-            pageController.jumpToPage(0); // 🔥 Ahora funciona correctamente
+            pageController.jumpToPage(0);
           },
         ),
         ListTile(

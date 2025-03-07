@@ -65,7 +65,8 @@ class _LoginForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
-    final loginForm = ref.watch(( loginFormProvider )); //para obtener el valor del state
+    final loginFormState    = ref.watch(( loginFormProvider )); //para obtener el valor del state
+    final loginFormNotifier = ref.read( loginFormProvider.notifier );
 
     ref.listen(authProvider, (previous, next) { 
       if ( next.errorMessage.isEmpty )  return;
@@ -103,10 +104,15 @@ class _LoginForm extends ConsumerWidget {
                     ],
                   ),
                   child : Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox( height: 60 ),
-                      
                       CustomProductField(
+                        suffixIcon: Icon(
+                          Icons.email_outlined,
+                          size: 30,
+                          color: Colors.blue,
+                        ),
                         isBottomField: true,
                         isTopField: true,
                         label: 'Correo',
@@ -114,22 +120,31 @@ class _LoginForm extends ConsumerWidget {
                         textWeight: FontWeight.w600,
                         keyboardType: TextInputType.emailAddress,
                         onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
-                        errorMessage: loginForm.isFormPosted 
-                        ? loginForm.email.errorMessage
+                        errorMessage: loginFormState.isFormPosted 
+                        ? loginFormState.email.errorMessage
                         : null,
                       ),
                       const SizedBox( height: 30 ),
-                  
                       CustomProductField(
+                        suffixIcon: Icon(
+                          !loginFormState.showPassword 
+                            ? Icons.visibility_outlined 
+                            : Icons.visibility_off_outlined,
+                          size: 30,
+                          color: !loginFormState.showPassword
+                            ? Colors.blue
+                            : Colors.red,
+                        ),
+                        onTapSuffixIcon: () => loginFormNotifier.setShowPass(),
                         isBottomField: true,
                         isTopField: true,
                         label: 'Contraseña',
                         textSize: 20,
                         textWeight: FontWeight.w600,
-                        obscureText: true,
+                        obscureText: !loginFormState.showPassword,
                         onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
-                        errorMessage: loginForm.isFormPosted
-                        ? loginForm.password.errorMessage
+                        errorMessage: loginFormState.isFormPosted
+                        ? loginFormState.password.errorMessage
                         : null,
                       ),
 
@@ -150,9 +165,11 @@ class _LoginForm extends ConsumerWidget {
                         fontSize: 22,
                         buttonColor: Colors.blueAccent.shade400,
                         mainAxisAlignment: MainAxisAlignment.start,
-                        onPressed: loginForm.isPosting
+                        onPressed: loginFormState.isPosting
                           ? null
-                          : ref.read(loginFormProvider.notifier).onFormSubmit
+                          : () async => await ref.read(loginFormProvider.notifier).onFormSubmit().then(
+                            (_) async =>  ref.read( homeProvider.notifier ).getRemiders
+                          )
                       ),
                       const SizedBox( height: 10),
 

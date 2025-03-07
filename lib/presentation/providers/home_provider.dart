@@ -78,6 +78,27 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   }
 
+  Future<void> updateReminder( Map< String, dynamic > updateReminderData ) async {
+
+    try {
+
+      state = state.copyWith(isLoading: true);
+
+      final userId = await keyValueStorageService.getValue<String>('userId');
+
+      await firestoreServiceRepository.updateDataInFirestore( updateReminderData, 'reminders', userId ?? '' );
+      
+      await Future.delayed(const Duration(seconds: 1), () async => getRemiders() );
+      state = state.copyWith(
+        isLoading: false,
+        isFormSelected: false,
+      );
+      
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
   void setIsFormSelected(bool isFormSelected) {
     state = state.copyWith(isFormSelected: isFormSelected);
   }
@@ -90,6 +111,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(selectedFilter: filter);
   }
 
+  void setEditReminder(bool editReminder) {
+    state = state.copyWith(editReminder: editReminder);
+  }
+
+  void setReminderSelected(Reminder reminder) {
+    state = state.copyWith(reminderSelected: reminder);
+  }
+
 }
 
 class HomeState {
@@ -98,12 +127,16 @@ class HomeState {
   final bool isLoading;
   final List<Reminder> reminders;
   final String selectedFilter;
+  final bool editReminder;
+  final Reminder? reminderSelected;
 
   HomeState({
     this.isFormSelected = false,
     this.isLoading = false,
     this.reminders = const [],
     this.selectedFilter = 'Todos',
+    this.editReminder = false,
+    this.reminderSelected,
   });
 
   HomeState copyWith({
@@ -111,20 +144,26 @@ class HomeState {
     bool? isLoading,
     List<Reminder>? reminders,
     String? selectedFilter,
+    bool? editReminder,
+    Reminder? reminderSelected,
   }) => HomeState(
     isFormSelected: isFormSelected ?? this.isFormSelected,
     isLoading: isLoading ?? this.isLoading,
     reminders: reminders ?? this.reminders,
     selectedFilter: selectedFilter ?? this.selectedFilter,
+    editReminder: editReminder ?? this.editReminder,
+    reminderSelected: reminderSelected ?? this.reminderSelected,
   );
 
   @override
   String toString() {
     return '''
     isFormSelected: $isFormSelected,
-    isLoading: $isLoading
-    reminders: $reminders
-    selectedFilter: $selectedFilter
+    isLoading: $isLoading,
+    reminders: $reminders,
+    selectedFilter: $selectedFilter,
+    editReminder: $editReminder,
+    reminderSelected: $reminderSelected,
     ''';
   }
 }
