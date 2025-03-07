@@ -20,57 +20,98 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
   final textStyle     = AppTheme().getTheme().textTheme;
   final colorTheme    = AppTheme().getTheme().colorScheme;
 
-  void _pickTime() async {
-    final now = TimeOfDay.now();
-    final isUnique = ref.read(remiderFormProvider).selectedFrequency == 'Único';
+void _pickDateTime() async {
+  final now = DateTime.now();
+  final isUnique = ref.read(remiderFormProvider).selectedFrequency == 'Único';
+  DateTime selectedDate = now;
 
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext builder) {
-        return Container(
-          height: 350,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Text(
-                'Seleccionar Hora',
-                style: textStyle.titleMedium,
+  // Mostrar el selector de fecha
+  await showModalBottomSheet(
+    context: context,
+    builder: (BuildContext builder) {
+      return Container(
+        height: 350,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text('Seleccionar Fecha', style: textStyle.titleMedium),
+            Expanded(
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.date,
+                initialDateTime: now,
+                minimumDate: now,
+                maximumYear: now.year + 5,
+                onDateTimeChanged: (DateTime newDate) {
+                  selectedDate = newDate;
+                },
               ),
-              Expanded(
-                child: CupertinoTimerPicker(
-                  mode: CupertinoTimerPickerMode.hm, // Solo horas y minutos
-                  initialTimerDuration: Duration(
-                    hours: ref.read(remiderFormProvider).selectedTime.value != '00:00'
-                        ? int.parse(ref.read(remiderFormProvider).selectedTime.value.split(':')[0])
-                        : now.hour,
-                    minutes: ref.read(remiderFormProvider).selectedTime.value != '00:00'
-                        ? int.parse(ref.read(remiderFormProvider).selectedTime.value.split(':')[1])
-                        : now.minute,
-                  ),
-                  onTimerDurationChanged: (Duration newTime) {
-                    final selectedHours = newTime.inHours;
-                    final selectedMinutes = newTime.inMinutes % 60;
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Siguiente', style: textStyle.bodyMedium),
+            )
+          ],
+        ),
+      );
+    },
+  );
 
-                    // Si la frecuencia es "Único", validar que la hora no sea menor a la actual
-                    if (isUnique && (selectedHours < now.hour || (selectedHours == now.hour && selectedMinutes < now.minute))) {
-                      return; // No actualizar si la hora es menor a la actual
-                    }
-
-                    final formattedTime = '${selectedHours.toString().padLeft(2, '0')}:${selectedMinutes.toString().padLeft(2, '0')}';
-                    ref.read(remiderFormProvider.notifier).onTimeChanged(formattedTime);
-                  },
+  // Mostrar el selector de hora
+  await showModalBottomSheet(
+    context: context,
+    builder: (BuildContext builder) {
+      return Container(
+        height: 350,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text('Seleccionar Hora', style: textStyle.titleMedium),
+            Expanded(
+              child: CupertinoTimerPicker(
+                mode: CupertinoTimerPickerMode.hm,
+                initialTimerDuration: Duration(
+                  hours: now.hour,
+                  minutes: now.minute,
                 ),
+                onTimerDurationChanged: (Duration newTime) {
+                  final selectedHours = newTime.inHours;
+                  final selectedMinutes = newTime.inMinutes % 60;
+
+                  // Si la frecuencia es "Único", validar que la hora no sea menor a la actual
+                  if (isUnique && selectedDate.day == now.day &&
+                      (selectedHours < now.hour || 
+                      (selectedHours == now.hour && selectedMinutes < now.minute))) {
+                    return; // No actualizar si la hora es menor a la actual
+                  }
+
+                  selectedDate = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                    selectedHours,
+                    selectedMinutes,
+                  );
+                },
               ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Aceptar', style: textStyle.bodyMedium,),
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final formattedDateTime =
+                    "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} "
+                    "${selectedDate.hour.toString().padLeft(2, '0')}:${selectedDate.minute.toString().padLeft(2, '0')}";
+
+                ref.read(remiderFormProvider.notifier).onDateTimeChanged(formattedDateTime);
+                Navigator.pop(context);
+              },
+              child: Text('Aceptar', style: textStyle.bodyMedium),
+            )
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   @override 
   Widget build(BuildContext context) {
@@ -133,15 +174,14 @@ class ReminderFormViewState extends ConsumerState<ReminderFormView> {
               // Selección de Hora
               ListTile(
                 title: Text(
-                  ref.watch(remiderFormProvider).selectedTime.value == '00:00'
+                  ref.watch(remiderFormProvider).selectedDateTime == ''
                     ? 'Seleccionar Hora'
-                    : 'Hora: ${ref.watch(remiderFormProvider).selectedTime.value}',
+                    : 'Hora: ${ref.watch(remiderFormProvider).selectedDateTime}',
                 ),
                 trailing: const Icon(Icons.access_time), // Icono de reloj en lugar de calendario
-                onTap: _pickTime,
+                onTap: _pickDateTime,
               ),
 
-              if ( remiderState.isFormPosted ) Text( remiderState.selectedTime.errorMessage.toString() ),
               const SizedBox(height: 16),
 
               // Frecuencia del recordatorio

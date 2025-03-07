@@ -72,14 +72,15 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
     final description = DescriptionForm.dirty(state.description.value);
     final title       = TitleForm.dirty(state.title.value);
-    final time        = RemiderTime.dirty(state.selectedTime.value);
+    // final time        = RemiderTime.dirty(state.selectedTime.value);
+    final time        = state.selectedDateTime;
 
     state = state.copyWith(
       isFormPosted: true,
       title: title,
       description: description,
-      selectedTime: time,
-      isValid: Formz.validate([ title, description, time ])
+      selectedDateTime: time,
+      isValid: Formz.validate([ title, description ])
     );
 
   }
@@ -106,7 +107,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
             'id': state.reminderSelected!.id,
             'title': state.title.value,
             'description': state.description.value,
-            'time': state.selectedTime.value,
+            'time': state.selectedDateTime,
             'frequency': state.selectedFrequency,
             'status': state.selectedStatus,
           };
@@ -123,6 +124,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
           await updateReminderCallback( newFirestoreData );
 
           await _scheduleNotification( index, updatedData );
+          state = state.copyWith(selectedDateTime: '');
 
           break;
 
@@ -138,7 +140,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
             'id': newId,
             'title': state.title.value,
             'description': state.description.value,
-            'time': state.selectedTime.value,
+            'time': state.selectedDateTime,
             'frequency': state.selectedFrequency,
             'status': state.selectedStatus,
           };
@@ -150,6 +152,11 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
           await createReminderCallback( firestoreData );
           await _scheduleNotification(newId, newReminder);
+
+          state = state.copyWith(
+            selectedDateTime: '',
+            
+          );
 
           break;
       }
@@ -171,15 +178,9 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
     final String time = reminder['time'] ?? '00:00';
     final String? frequency = reminder['frequency'];
 
-    final now = DateTime.now();
-    final List<String> timeParts = time.split(':');
-    final DateTime scheduledDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      int.parse(timeParts[0]),
-      int.parse(timeParts[1]),
-    );
+    // final now = DateTime.now();
+    // final List<String> timeParts = time.split(':');
+    final DateTime scheduledDate = DateTime.parse(time);
 
     if (frequency == 'Único') {
       await NotificationService.scheduleNotification(
@@ -241,6 +242,10 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
     }
   }
 
+  void onDateTimeChanged(String dateTime) {
+    state = state.copyWith(selectedDateTime: dateTime);
+  }
+
 }
 
 class RemiderFormState {
@@ -256,6 +261,7 @@ class RemiderFormState {
   final String selectedStatus;
   final List<Reminder> reminders;
   final Reminder? reminderSelected;
+  final String selectedDateTime; 
 
   RemiderFormState({
     this.isPosting = false,
@@ -269,6 +275,7 @@ class RemiderFormState {
     this.reminders = const [],
     this.isEditReminder = false,
     this.reminderSelected,
+    this.selectedDateTime = '',
   });
 
   RemiderFormState copyWith({
@@ -283,6 +290,7 @@ class RemiderFormState {
     List<Reminder>? reminders,
     bool? isEditReminder,
     Reminder? reminderSelected,
+    String? selectedDateTime,
   }) => RemiderFormState(
     isPosting: isPosting ?? this.isPosting,
     isFormPosted: isFormPosted ?? this.isFormPosted,
@@ -295,6 +303,7 @@ class RemiderFormState {
     reminders: reminders ?? this.reminders,
     isEditReminder: isEditReminder ?? this.isEditReminder,
     reminderSelected: reminderSelected ?? this.reminderSelected,
+    selectedDateTime: selectedDateTime ?? this.selectedDateTime,
   );
 
   @override
@@ -312,6 +321,7 @@ class RemiderFormState {
       reminders: $reminders,
       isEditReminder: $isEditReminder,
       reminderSelected: $reminderSelected,
+      selectedDateTime: $selectedDateTime,
     }
     ''';
   }

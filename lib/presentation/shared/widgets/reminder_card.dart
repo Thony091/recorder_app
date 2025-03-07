@@ -84,7 +84,7 @@ class ReminderCard extends ConsumerWidget {
                         Icon(
                           LucideIcons.clock, 
                           color: Colors.orange,
-                          size: 30,
+                          size: 25,
                         ),
                         const SizedBox(width: 8),
                         Text(reminder.time, style: textStyle.bodySmall ),
@@ -100,7 +100,7 @@ class ReminderCard extends ConsumerWidget {
                           color: reminder.frequency == 'Único'
                             ? Colors.blue
                             : Colors.green,
-                          size: 30,
+                          size: 25,
                         ), 
                         const SizedBox(width: 8),
                         Text(reminder.frequency, style: textStyle.bodySmall),

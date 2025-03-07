@@ -42,7 +42,6 @@ class MainApp extends ConsumerWidget {
     return  MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: appRouter,
-      
     );
   }
 }

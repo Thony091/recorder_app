@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/config.dart';
-import 'package:recorder_app/presentation/pages/home/views/edit_reminder_form_view.dart';
 import 'package:recorder_app/presentation/pages/home/views/home_body_view.dart';
 import 'package:recorder_app/presentation/pages/home/views/reminder_form_view.dart';
 import 'package:recorder_app/presentation/presentation.dart';
