@@ -13,6 +13,13 @@ class NotificationService {
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
     }
+
+    if ( Platform.isAndroid) {
+      if (await Permission.scheduleExactAlarm.isDenied) {
+        // 🔥 Abre la configuración para permitir alarmas exactas
+        openAppSettings();
+      }
+    }
   }
 
   static Future<void> requestExactAlarmPermission() async {
@@ -25,8 +32,8 @@ class NotificationService {
 
   static Future<void> initialize() async {
 
+    if ( Platform.isAndroid) await requestExactAlarmPermission();
     await requestNotificationPermission();
-    await requestExactAlarmPermission();
 
     //Obtener zona horaria
     tz.initializeTimeZones();
@@ -115,7 +122,7 @@ class NotificationService {
         ),
         iOS: DarwinNotificationDetails(),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time
     );
