@@ -2,7 +2,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
-import 'package:recorder_app/config/services/notifications/notification_service.dart';
+import 'package:recorder_app/config/config.dart';
 import 'package:recorder_app/domain/domain.dart';
 import 'package:recorder_app/infrastructure/mappers/mappers_container.dart';
 import 'package:recorder_app/presentation/presentation.dart';
@@ -12,11 +12,13 @@ final remiderFormProvider = StateNotifierProvider.autoDispose< RemiderFormNotifi
   final updateReminderCallback = ref.watch( homeProvider.notifier ).updateReminder;
   final createReminderCallback = ref.watch( homeProvider.notifier ).createReminder;
   final getRemidersCallback   = ref.watch( homeProvider.notifier ).getRemidersList;
+  final keyValueStorageService = KeyValueStorageServiceImpl();
 
   return RemiderFormNotifier(
     updateReminderCallback: updateReminderCallback,
     createReminderCallback: createReminderCallback,
-    getRemidersCallback: getRemidersCallback
+    getRemidersCallback: getRemidersCallback,
+    keyValueStorageService: keyValueStorageService,
   );
 });
 
@@ -25,11 +27,13 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
   final Function(Map<String, dynamic>) updateReminderCallback;
   final Function(Map<String, dynamic>) createReminderCallback;
   final Function() getRemidersCallback;
+  final KeyValueStorageService keyValueStorageService;
 
   RemiderFormNotifier({
     required this.updateReminderCallback,
     required this.createReminderCallback,
     required this.getRemidersCallback,
+    required this.keyValueStorageService,
   }): super( RemiderFormState() );
   
   onTitleChange( String value ) {
@@ -97,6 +101,8 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
       final reminderList = getRemidersCallback();
 
+      final userId = await keyValueStorageService.getValue<String>('userId');
+
       switch ( state.isEditReminder ) {
         case true:
 
@@ -105,6 +111,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
           if (index == -1) return; // No encontrado
           final updatedData = {
             'id': state.reminderSelected!.id,
+            'userId': userId,
             'title': state.title.value,
             'description': state.description.value,
             'time': state.selectedDateTime,
@@ -138,6 +145,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
           final newReminder = {
             'id': newId,
+            'userId': userId,
             'title': state.title.value,
             'description': state.description.value,
             'time': state.selectedDateTime,

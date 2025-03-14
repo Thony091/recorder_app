@@ -1,6 +1,7 @@
 
 class ReminderModelResponse {
     final int id;
+    final String userId;
     final String title;
     final String description;
     final String time;
@@ -9,6 +10,7 @@ class ReminderModelResponse {
 
     ReminderModelResponse({
         required this.id,
+        required this.userId,
         required this.title,
         required this.description,
         required this.time,
@@ -18,6 +20,7 @@ class ReminderModelResponse {
 
     factory ReminderModelResponse.fromJson(Map<String, dynamic> json) => ReminderModelResponse(
         id: json["id"],
+        userId: json["userId"],
         title: json["title"],
         description: json["description"],
         time: json["time"],
@@ -27,6 +30,7 @@ class ReminderModelResponse {
 
     Map<String, dynamic> toJson() => {
         "id": id,
+        "userId": userId,
         "title": title,
         "description": description,
         "time": time,

@@ -7,6 +7,7 @@ class UserDataMapper {
 
   static Reminder userDataToEntity( ReminderModelResponse userDataFs) => Reminder(
     id: userDataFs.id,
+    userId: userDataFs.userId,
     title: userDataFs.title,
     description: userDataFs.description,
     time: userDataFs.time,
@@ -16,6 +17,7 @@ class UserDataMapper {
 
   static ReminderModelResponse userDataToModel( Reminder userData) => ReminderModelResponse(
     id: userData.id,
+    userId: userData.userId,
     title: userData.title,
     description: userData.description,
     time: userData.time,
