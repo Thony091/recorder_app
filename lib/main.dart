@@ -1,3 +1,5 @@
+import 'package:device_preview_plus/device_preview_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +29,10 @@ Future<void> main() async {
     );
   
   runApp(
-    const ProviderScope(child: MainApp() )
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (_) => const ProviderScope( child: MainApp() )
+    ),
   );
 }
 
@@ -39,9 +44,24 @@ class MainApp extends ConsumerWidget {
 
     final appRouter = ref.watch( goRouterProvider );
 
-    return  MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: appRouter,
+    return  GestureDetector(
+      onTap: () {
+        final focus = FocusScope.of(context);
+        final focusedChild = focus.focusedChild;
+        if ( focusedChild != null && !focusedChild.hasPrimaryFocus ) focusedChild.unfocus();
+        // FocusScope.of(context).unfocus();
+      },
+      child: MaterialApp.router(
+        // themeAnimationStyle: AnimationStyle(
+        //   curve: Curves.easeInOut,
+        //   reverseCurve: Curves.easeInOut,
+        //   duration: const Duration(milliseconds: 300),
+        // ),
+        debugShowCheckedModeBanner: false,
+        routerConfig: appRouter,
+        locale: DevicePreview.locale(context),
+        builder: DevicePreview.appBuilder,
+      ),
     );
   }
 }

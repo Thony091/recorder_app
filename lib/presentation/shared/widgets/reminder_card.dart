@@ -75,61 +75,66 @@ class ReminderCard extends ConsumerWidget {
                   ],
                 ),
                 Expanded(child: SizedBox()),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Time
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.clock, 
-                          color: Colors.orange,
-                          size: 25,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(reminder.time, style: textStyle.bodySmall ),
-                      ]
-                    ),
-                    // Frequency
-                    Row(
-                      children: [
-                        Icon( 
-                          reminder.frequency == 'Único' 
-                            ? LucideIcons.repeat1
-                            : LucideIcons.repeat,
-                          color: reminder.frequency == 'Único'
-                            ? Colors.blue
-                            : Colors.green,
-                          size: 25,
-                        ), 
-                        const SizedBox(width: 8),
-                        Text(reminder.frequency, style: textStyle.bodySmall),
-                      ],
-                    ),
-                    // Status
-                    Row(
-                      children: [
-                        Icon(
-                          reminder.status == 'Completado' 
-                            ? LucideIcons.checkCircle 
-                            : reminder.status == 'Pendiente' 
-                              ? LucideIcons.penTool
-                              : LucideIcons.xCircle,
-                          color: reminder.status == 'Completado' 
-                            ? Colors.green 
-                            : reminder.status == 'Pendiente' 
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Time
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.clock, 
+                            color: Colors.orange,
+                            size: 25,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(reminder.time, style: textStyle.bodySmall ),
+                        ]
+                      ),
+                      const SizedBox(width: 15),
+                      // Frequency
+                      Row(
+                        children: [
+                          Icon( 
+                            reminder.frequency == 'Único' 
+                              ? LucideIcons.repeat1
+                              : LucideIcons.repeat,
+                            color: reminder.frequency == 'Único'
                               ? Colors.blue
-                              : Colors.red,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          reminder.status,
-                          style: textStyle.bodySmall
-                        ),
-                      ],
-                    ),
-          
-                  ],
+                              : Colors.green,
+                            size: 25,
+                          ), 
+                          const SizedBox(width: 8),
+                          Text(reminder.frequency, style: textStyle.bodySmall),
+                        ],
+                      ),
+                      const SizedBox(width: 15),
+                      // Status
+                      Row(
+                        children: [
+                          Icon(
+                            reminder.status == 'Completado' 
+                              ? LucideIcons.checkCircle 
+                              : reminder.status == 'Pendiente' 
+                                ? LucideIcons.penTool
+                                : LucideIcons.xCircle,
+                            color: reminder.status == 'Completado' 
+                              ? Colors.green 
+                              : reminder.status == 'Pendiente' 
+                                ? Colors.blue
+                                : Colors.red,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            reminder.status,
+                            style: textStyle.bodySmall
+                          ),
+                        ],
+                      ),
+                            
+                    ],
+                  ),
                 ),
               ],
             ),

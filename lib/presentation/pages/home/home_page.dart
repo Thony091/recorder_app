@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/config.dart';
-import 'package:recorder_app/presentation/pages/home/views/home_body_view.dart';
-import 'package:recorder_app/presentation/pages/home/views/reminder_form_view.dart';
+import 'package:recorder_app/presentation/pages/home/views/home_body_page.dart';
+import 'package:recorder_app/presentation/pages/home/reminder_form_page.dart';
 import 'package:recorder_app/presentation/presentation.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -21,8 +21,9 @@ class HomePageState extends ConsumerState<HomePage>{
   @override
   void initState() {
     super.initState();
-    
-    Future.microtask(() => ref.read(homeProvider.notifier).getRemiders());
+    if( ref.read( authProvider ).authStatus == AuthStatus.authenticated ) {
+      Future.microtask(() => ref.read(homeProvider.notifier).getRemiders());
+    }
   }
 
   @override
@@ -52,8 +53,8 @@ class HomePageState extends ConsumerState<HomePage>{
         backgroundColor: color.primary,
       ),
       body: !homeState.isFormSelected 
-        ? HomeBodyView()
-        : ReminderFormView()
+        ? HomeBodyPage()
+        : ReminderFormPage()
     );
   }
 }

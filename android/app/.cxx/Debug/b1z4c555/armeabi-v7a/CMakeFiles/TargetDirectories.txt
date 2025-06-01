@@ -1,0 +1,2 @@
+/Users/anthonygregoryfloresramos/Downloads/TechnicalTestApp/recorder_app/android/app/.cxx/Debug/b1z4c555/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/anthonygregoryfloresramos/Downloads/TechnicalTestApp/recorder_app/android/app/.cxx/Debug/b1z4c555/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -103,71 +103,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
       final userId = await keyValueStorageService.getValue<String>('userId');
 
-      switch ( state.isEditReminder ) {
-        case true:
-
-          // Buscar el recordatorio por ID y actualizarlo
-          int index = reminderList.indexWhere((r) => r.id == state.reminderSelected!.id);
-          if (index == -1) return; // No encontrado
-          final updatedData = {
-            'id': state.reminderSelected!.id,
-            'userId': userId,
-            'title': state.title.value,
-            'description': state.description.value,
-            'time': state.selectedDateTime,
-            'frequency': state.selectedFrequency,
-            'status': state.selectedStatus,
-          };
-
-          reminderList.removeAt(index);
-
-          final newReminderMap = reminderList.map((r) => UserDataMapper.userDataToModel(r)).toList();
-
-
-          final Map<String, dynamic> newFirestoreData = { 
-            'reminders': [ ...newReminderMap.map((r) => r.toJson()), updatedData ]
-          }; 
-
-          await updateReminderCallback( newFirestoreData );
-
-          await _scheduleNotification( index, updatedData );
-          state = state.copyWith(selectedDateTime: '');
-
-          break;
-
-        case false:
-          // Crear el nuevo recordatorio
-          int newId = (reminderList.isNotEmpty)
-            ? reminderList.map((r) => r.id ?? 0).reduce((a, b) => a > b ? a : b) + 10
-            : 10; // Si está vacío, empezamos desde 10
-
-          final newReminderList = reminderList.map((r) => UserDataMapper.userDataToModel( r )).toList();
-
-          final newReminder = {
-            'id': newId,
-            'userId': userId,
-            'title': state.title.value,
-            'description': state.description.value,
-            'time': state.selectedDateTime,
-            'frequency': state.selectedFrequency,
-            'status': state.selectedStatus,
-          };
-
-          // Mapa que se enviará a Firestore
-          final Map<String, dynamic> firestoreData = {
-            'reminders': [...newReminderList.map((r) => r.toJson()), newReminder]
-          };
-
-          await createReminderCallback( firestoreData );
-          await _scheduleNotification(newId, newReminder);
-
-          state = state.copyWith(
-            selectedDateTime: '',
-            
-          );
-
-          break;
-      }
+      await upodateOrCreteRemider( reminderList, state.isEditReminder, userId, state.selectedStatus );
 
       state = state.copyWith(isPosting: false);
 
@@ -179,15 +115,71 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
   }
 
+  Future<void> upodateOrCreteRemider( List<Reminder> reminderList, bool isEditReminder, String? userId ,String remiderStatus ) async {
+    switch ( state.isEditReminder ) {
 
-  Future<void> _scheduleNotification(int id, Map<String, dynamic> reminder) async {
+      case true:
+        // Buscar el recordatorio por ID y actualizarlo
+        int index = reminderList.indexWhere((r) => r.id == state.reminderSelected!.id);
+        if (index == -1) return; // No encontrado
+        final updatedData = {
+          'id': state.reminderSelected!.id,
+          'userId': userId,
+          'title': state.title.value,
+          'description': state.description.value,
+          'time': state.selectedDateTime,
+          'frequency': state.selectedFrequency,
+          'status': state.selectedStatus,
+        };
+        reminderList.removeAt(index);
+        final newReminderMap = reminderList.map((r) => UserDataMapper.userDataToModel(r)).toList();
+        final Map<String, dynamic> newFirestoreData = { 
+          'reminders': [ ...newReminderMap.map((r) => r.toJson()), updatedData ]
+        };
+        await updateReminderCallback( newFirestoreData );
+        await _scheduleNotification( index, updatedData, remiderStatus );
+        state = state.copyWith(selectedDateTime: '');
+        break;
+      case false:
+        // Crear el nuevo recordatorio
+        int newId = (reminderList.isNotEmpty)
+          ? reminderList.map((r) => r.id ).reduce((a, b) => a > b ? a : b) + 10
+          : 10; // Si está vacío, empezamos desde 10
+        final newReminderList = reminderList.map((r) => UserDataMapper.userDataToModel( r )).toList();
+        final newReminder = {
+          'id': newId,
+          'userId': userId,
+          'title': state.title.value,
+          'description': state.description.value,
+          'time': state.selectedDateTime,
+          'frequency': state.selectedFrequency,
+          'status': state.selectedStatus,
+        };
+        // Mapa que se enviará a Firestore
+        final Map<String, dynamic> firestoreData = {
+          'reminders': [...newReminderList.map((r) => r.toJson()), newReminder]
+        };
+        await createReminderCallback( firestoreData );
+        await _scheduleNotification(newId, newReminder, remiderStatus);
+        state = state.copyWith(
+          selectedDateTime: '',
+        );
+        break;
+    }
+  }
+
+
+  Future<void> _scheduleNotification(int id, Map<String, dynamic> reminder, String remiderStatus) async {
     final String title = reminder['title'] ?? 'Sin título';
     final String body = reminder['description'] ?? 'Sin descripción';
     final String time = reminder['time'] ?? '00:00';
     final String? frequency = reminder['frequency'];
 
-    // final now = DateTime.now();
-    // final List<String> timeParts = time.split(':');
+    if ( remiderStatus == 'Completado') {
+      await NotificationService.flutterLocalNotificationsPlugin.cancel(id);
+      return;
+    }
+
     final DateTime scheduledDate = DateTime.parse(time);
 
     if (frequency == 'Único') {
@@ -216,6 +208,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
         title: title,
         body: body,
         repeatInterval: repeatInterval,
+        scheduledDate: scheduledDate,
       );
     }
   }
@@ -229,9 +222,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
   }
 
   Future<void> deleteReminder() async {
-
     try {
-      
       final reminderList = getRemidersCallback();
       // Buscar el recordatorio por ID y actualizarlo
       int index = reminderList.indexWhere((r) => r.id == state.reminderSelected!.id);
@@ -244,6 +235,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
         'reminders': [ ...newReminderMap.map((r) => r.toJson()) ]
       }; 
       await updateReminderCallback( newFirestoreData );
+      await NotificationService.flutterLocalNotificationsPlugin.cancel(state.reminderSelected!.id);
 
     } catch (e) {
       throw Exception(e.toString());

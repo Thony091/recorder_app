@@ -6,20 +6,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/config.dart';
 import 'package:recorder_app/presentation/presentation.dart';
 
-class HomeBodyView extends ConsumerStatefulWidget {
-  const HomeBodyView({super.key});
+class HomeBodyPage extends ConsumerStatefulWidget {
+  const HomeBodyPage({super.key});
 
   @override
   _HomeBodyPageState createState() => _HomeBodyPageState();
 }
 
-class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
+class _HomeBodyPageState extends ConsumerState<HomeBodyPage> {
   final PageController _pageController = PageController();
 
   @override
   void initState() {
     super.initState();
-    ref.read( homeProvider.notifier ).getRemiders;
+    if( ref.read( authProvider ).authStatus == AuthStatus.authenticated ) {
+      ref.read( homeProvider.notifier ).getRemiders;
+    }
   }
 
   int _currentPage = 0;
@@ -33,9 +35,7 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
   @override
   Widget build(BuildContext context) {
 
-    final textStyle     = AppTheme().getTheme().textTheme;
-    final homeNotifier  = ref.read(homeProvider.notifier);
-    final reminderFormNotifier  = ref.watch(remiderFormProvider.notifier); 
+    final textStyle = AppTheme().getTheme().textTheme;
 
     return Stack(
       children : [
@@ -51,39 +51,46 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
             const SizedBox(height: 20),
         
             // Controles de Paginación
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _pageController.animateToPage(
-                      0,
-                      duration: const Duration(milliseconds: 300), 
-                      curve: Curves.easeInOut
-                    );
-                    homeNotifier.setFilter('Todos');
-                  }, 
-                  child: Text('Mis Recordatorios', style: textStyle.bodySmall,),
+            Padding(
+              padding: const EdgeInsets.symmetric( horizontal: 15 ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _pageController.animateToPage(
+                          0,
+                          duration: const Duration(milliseconds: 300), 
+                          curve: Curves.easeInOut
+                        );
+                        ref.read(homeProvider.notifier).setFilter('Todos');
+                      }, 
+                      child: Text('Mis Recordatorios', style: textStyle.bodySmall,),
+                    ),
+                    const SizedBox(width: 15),
+                    ElevatedButton(
+                      onPressed: () => _pageController.animateToPage(
+                        1,
+                        duration: const Duration(milliseconds: 300), 
+                        curve: Curves.easeInOut
+                      ),
+                      child: Text('Ordenar', style: textStyle.bodySmall,),
+                    ),
+                    const SizedBox(width: 15),
+                    ElevatedButton(
+                      onPressed: () => _pageController.animateToPage(
+                        2,
+                        duration: const Duration(milliseconds: 300), 
+                        curve: Curves.easeInOut
+                      ),
+                      child: Text('Favoritos', style: textStyle.bodySmall,),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _pageController.animateToPage(
-                    1,
-                    duration: const Duration(milliseconds: 300), 
-                    curve: Curves.easeInOut
-                  ),
-                  child: Text('Ordenar', style: textStyle.bodySmall,),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _pageController.animateToPage(
-                    2,
-                    duration: const Duration(milliseconds: 300), 
-                    curve: Curves.easeInOut
-                  ),
-                  child: Text('Favoritos', style: textStyle.bodySmall,),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 15),
 
@@ -99,7 +106,7 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
                 controller: _pageController,
                 onPageChanged: _onPageChanged,
                 children: [
-                  _RemindersPage(pageController: _pageController,),
+                  _RemindersPage( pageController: _pageController,),
                   _SortOptionsPage( pageController: _pageController ,),
                   _FavoritesPage( pageController: _pageController ,),
                 ],
@@ -126,8 +133,8 @@ class _HomeBodyPageState extends ConsumerState<HomeBodyView> {
             buttonColor: Colors.blueAccent.shade400,
             mainAxisAlignment: MainAxisAlignment.start,
             onPressed: () {
-              homeNotifier.setIsFormSelected(true);
-              reminderFormNotifier.setEditReminder(false);
+              ref.read(homeProvider.notifier).setIsFormSelected(true);
+              ref.read(remiderFormProvider.notifier).setEditReminder(false);
             },
           )
         ),
@@ -145,9 +152,10 @@ class _RemindersPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
     final homeState = ref.watch(homeProvider);
     final textStyle = AppTheme().getTheme().textTheme;
-    final homeNotifier = ref.read(homeProvider.notifier);
+    // final homeNotifier = ref.read(homeProvider.notifier);
 
     // Filtrar recordatorios según el estado seleccionado
     final filteredReminders = homeState.selectedFilter == 'Todos'
@@ -164,7 +172,7 @@ class _RemindersPage extends ConsumerWidget {
               child: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  homeNotifier.setFilter('Todos');
+                  ref.read(homeProvider.notifier).setFilter('Todos');
                   pageController.jumpToPage(1);
                 },
                 iconSize: 35,
@@ -173,16 +181,16 @@ class _RemindersPage extends ConsumerWidget {
           ),
         Expanded(
           child: filteredReminders.isEmpty
-              ? Center(
-                  child: Text('No hay recordatorios disponibles', style: textStyle.bodyMedium),
-                )
-              : ListView.builder(
-                  itemCount: filteredReminders.length,
-                  itemBuilder: (context, index) {
-                    final reminder = filteredReminders[index];
-                    return ReminderCard(reminder: reminder);
-                  },
-                ),
+            ? Center(
+                child: Text('No hay recordatorios disponibles', style: textStyle.bodyMedium),
+              )
+            : ListView.builder(
+                itemCount: filteredReminders.length,
+                itemBuilder: (context, index) {
+                  final reminder = filteredReminders[index];
+                  return ReminderCard(reminder: reminder);
+                },
+              ),
         ),
       ],
     );
@@ -201,7 +209,7 @@ class _SortOptionsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final textStyle     = AppTheme().getTheme().textTheme;
-    final homeNotifier = ref.read(homeProvider.notifier);
+    final homeNotifier  = ref.read(homeProvider.notifier);
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -244,7 +252,7 @@ class _SortOptionsPage extends ConsumerWidget {
 
 class _FavoritesPage extends ConsumerStatefulWidget {
 
-    final PageController pageController;
+  final PageController pageController;
 
   const _FavoritesPage({
     required this.pageController
@@ -269,8 +277,8 @@ class FavoritePageState extends ConsumerState<_FavoritesPage> {
   @override
   Widget build(BuildContext context) {
     
-    final appTextTheme = Theme.of(context).textTheme;
     final favoriteReminders = ref.watch( favoriteRemindersProvider ).values.toList();
+    final appTextTheme      = Theme.of(context).textTheme;
 
     if ( favoriteReminders.isEmpty ) {
       return Center(
@@ -288,4 +296,3 @@ class FavoritePageState extends ConsumerState<_FavoritesPage> {
 
   }
 }
-

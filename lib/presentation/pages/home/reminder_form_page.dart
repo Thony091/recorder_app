@@ -4,113 +4,113 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/theme/app_theme.dart';
 import 'package:recorder_app/presentation/presentation.dart';
 
-class ReminderFormView extends ConsumerStatefulWidget {
+class ReminderFormPage extends ConsumerStatefulWidget {
 
   static const name = 'ReminderFormView';
 
-  const ReminderFormView({super.key});
+  const ReminderFormPage({super.key});
 
   @override
   ReminderFormViewState createState() => ReminderFormViewState();
 }
 
-class ReminderFormViewState extends ConsumerState<ReminderFormView> {
+class ReminderFormViewState extends ConsumerState<ReminderFormPage> {
   
   final _formKey      = GlobalKey<FormState>();
   final textStyle     = AppTheme().getTheme().textTheme;
   final colorTheme    = AppTheme().getTheme().colorScheme;
 
-void _pickDateTime() async {
-  final now = DateTime.now();
-  final isUnique = ref.read(remiderFormProvider).selectedFrequency == 'Único';
-  DateTime selectedDate = now;
+  void _pickDateTime() async {
+    final now = DateTime.now();
+    final isUnique = ref.read(remiderFormProvider).selectedFrequency == 'Único';
+    DateTime selectedDate = now;
 
-  // Mostrar el selector de fecha
-  await showModalBottomSheet(
-    context: context,
-    builder: (BuildContext builder) {
-      return Container(
-        height: 350,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text('Seleccionar Fecha', style: textStyle.titleMedium),
-            Expanded(
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.date,
-                initialDateTime: now,
-                minimumDate: now,
-                maximumYear: now.year + 5,
-                onDateTimeChanged: (DateTime newDate) {
-                  selectedDate = newDate;
-                },
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Siguiente', style: textStyle.bodyMedium),
-            )
-          ],
-        ),
-      );
-    },
-  );
-
-  // Mostrar el selector de hora
-  await showModalBottomSheet(
-    context: context,
-    builder: (BuildContext builder) {
-      return Container(
-        height: 350,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text('Seleccionar Hora', style: textStyle.titleMedium),
-            Expanded(
-              child: CupertinoTimerPicker(
-                mode: CupertinoTimerPickerMode.hm,
-                initialTimerDuration: Duration(
-                  hours: now.hour,
-                  minutes: now.minute,
+    // Mostrar el selector de fecha
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext builder) {
+        return Container(
+          height: 350,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Text('Seleccionar Fecha', style: textStyle.titleMedium),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: now,
+                  minimumDate: now,
+                  maximumYear: now.year + 5,
+                  onDateTimeChanged: (DateTime newDate) {
+                    selectedDate = newDate;
+                  },
                 ),
-                onTimerDurationChanged: (Duration newTime) {
-                  final selectedHours = newTime.inHours;
-                  final selectedMinutes = newTime.inMinutes % 60;
-
-                  // Si la frecuencia es "Único", validar que la hora no sea menor a la actual
-                  if (isUnique && selectedDate.day == now.day &&
-                      (selectedHours < now.hour || 
-                      (selectedHours == now.hour && selectedMinutes < now.minute))) {
-                    return; // No actualizar si la hora es menor a la actual
-                  }
-
-                  selectedDate = DateTime(
-                    selectedDate.year,
-                    selectedDate.month,
-                    selectedDate.day,
-                    selectedHours,
-                    selectedMinutes,
-                  );
-                },
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final formattedDateTime =
-                    "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} "
-                    "${selectedDate.hour.toString().padLeft(2, '0')}:${selectedDate.minute.toString().padLeft(2, '0')}";
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Siguiente', style: textStyle.bodyMedium),
+              )
+            ],
+          ),
+        );
+      },
+    );
 
-                ref.read(remiderFormProvider.notifier).onDateTimeChanged(formattedDateTime);
-                Navigator.pop(context);
-              },
-              child: Text('Aceptar', style: textStyle.bodyMedium),
-            )
-          ],
-        ),
-      );
-    },
-  );
-}
+    // Mostrar el selector de hora
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext builder) {
+        return Container(
+          height: 350,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Text('Seleccionar Hora', style: textStyle.titleMedium),
+              Expanded(
+                child: CupertinoTimerPicker(
+                  mode: CupertinoTimerPickerMode.hm,
+                  initialTimerDuration: Duration(
+                    hours: now.hour,
+                    minutes: now.minute,
+                  ),
+                  onTimerDurationChanged: (Duration newTime) {
+                    final selectedHours = newTime.inHours;
+                    final selectedMinutes = newTime.inMinutes % 60;
+
+                    // Si la frecuencia es "Único", validar que la hora no sea menor a la actual
+                    if (isUnique && selectedDate.day == now.day &&
+                        (selectedHours < now.hour || 
+                        (selectedHours == now.hour && selectedMinutes < now.minute))) {
+                      return; // No actualizar si la hora es menor a la actual
+                    }
+
+                    selectedDate = DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      selectedHours,
+                      selectedMinutes,
+                    );
+                  },
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final formattedDateTime =
+                      "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} "
+                      "${selectedDate.hour.toString().padLeft(2, '0')}:${selectedDate.minute.toString().padLeft(2, '0')}";
+
+                  ref.read(remiderFormProvider.notifier).onDateTimeChanged(formattedDateTime);
+                  Navigator.pop(context);
+                },
+                child: Text('Aceptar', style: textStyle.bodyMedium),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
 
 
   @override 

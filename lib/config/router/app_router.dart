@@ -41,17 +41,17 @@ final goRouterProvider = Provider( (ref) {
       final authStatus = goRouterNotifier.authStatus;
 
       // Permitir acceso a la página de detalles del servicio sin autenticación
-      if (isGoingTo.toString().startsWith('/service/')  && authStatus != AuthStatus.authenticated) {
+      if (isGoingTo.toString().startsWith('/service/') && authStatus != AuthStatus.authenticated) {
         return null; // No redirigir, permitir el acceso
       }
 
       if ( isGoingTo == '/splash' && authStatus == AuthStatus.checking ) return null;
 
-      if ( authStatus == AuthStatus.notAuthenticated ) {
-        if ( isGoingTo == '/' ) return null;
+      // if ( authStatus == AuthStatus.notAuthenticated ) {
+      //   if ( isGoingTo == '/' ) return null;
 
-        return '/login';
-      }
+      //   return '/login';
+      // }
       
       if ( authStatus == AuthStatus.notAuthenticated ) {
         if ( isGoingTo == '/login' ) return null;

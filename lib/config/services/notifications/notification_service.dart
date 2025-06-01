@@ -63,7 +63,7 @@ class NotificationService {
     );
   }
 
-  NotificationDetails notificationDetails(){
+  static NotificationDetails notificationDetails(){
     return const NotificationDetails(
       android: AndroidNotificationDetails(
         'reminder_channel',
@@ -112,48 +112,78 @@ class NotificationService {
       title,
       body,
       tz.TZDateTime.from(scheduledDate, tz.local),
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'reminder_channel',
-          'Recordatorios',
-          channelDescription: 'Canal para recordatorios',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
+      notificationDetails(),
       androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time
+      // matchDateTimeComponents: DateTimeComponents.time
     );
   }
-
 
   static Future<void> scheduleRepeatingNotification({
     required int id,
     required String title,
     required String body,
     required RepeatInterval repeatInterval,
+    required DateTime scheduledDate,
   }) async {
     print(" Programando notificación repetitiva: $repeatInterval");
 
-    await flutterLocalNotificationsPlugin.periodicallyShow(
-      id,
-      title,
-      body,
-      repeatInterval,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'reminder_channel',
-          'Recordatorios',
-          channelDescription: 'Canal para recordatorios',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-    );
+    final intervalo = repeatInterval.toString().split('.').first;
+
+    switch ( intervalo ) {
+      case 'Diario':
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+          id,
+          title,
+          body,
+          tz.TZDateTime.from(scheduledDate, tz.local),
+          notificationDetails(),
+          androidScheduleMode: AndroidScheduleMode.alarmClock,
+          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time
+        );
+        break;
+      case 'Semanal':
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+          id,
+          title,
+          body,
+          tz.TZDateTime.from(scheduledDate, tz.local),
+          notificationDetails(),
+          androidScheduleMode: AndroidScheduleMode.alarmClock,
+          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime
+        );
+        break;
+    }
+
+    // await flutterLocalNotificationsPlugin.periodicallyShow(
+    //   id,
+    //   title,
+    //   body,
+    //   repeatInterval,
+    //   notificationDetails(),
+    //   androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    // );
   }
+
+
+  //! Arreglar el tiempo
+  // tz.TZDateTime _nextInstanceOfDayAndTime(Day day, Time time) {
+  //   tz.TZDateTime scheduledDate = _nextInstanceOfTime(time);
+  //   while (scheduledDate.weekday != day.value) {
+  //     scheduledDate = scheduledDate.add(Duration(days: 1));
+  //   }
+  //   return scheduledDate;
+  // }
+
+  // tz.TZDateTime _nextInstanceOfTime(Time time) {
+  //   final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+  //   tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, time.hour, time.minute);
+  //   if (scheduledDate.isBefore(now)) {
+  //     scheduledDate = scheduledDate.add(Duration(days: 1));
+  //   }
+  //   return scheduledDate;
+  // }
 
 }

@@ -3,6 +3,7 @@ import 'package:recorder_app/config/config.dart';
 import 'package:recorder_app/domain/domain.dart';
 import 'package:recorder_app/infrastructure/infrastructure.dart';
 import 'package:recorder_app/infrastructure/repositories/firestore_service_repository_impl.dart';
+import 'package:recorder_app/presentation/presentation.dart';
 
 
 final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) {
@@ -13,18 +14,24 @@ final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) {
   return HomeNotifier(
     firestoreServiceRepository: firestoreRepository,
     keyValueStorageService: keyValueStorageService,
+    ref: ref,
   );
 });
 class HomeNotifier extends StateNotifier<HomeState> {
 
   final FirestoreServiceRepository firestoreServiceRepository;
   final KeyValueStorageService keyValueStorageService;
+  final Ref ref;
 
   HomeNotifier({
     required this.firestoreServiceRepository,
     required this.keyValueStorageService,
+    required this.ref,
   }) : super(HomeState()){
-    getRemiders();
+    if ( ref.read( authProvider ).authStatus == AuthStatus.authenticated ) {
+      getRemiders();
+    }
+    print( ref.read( authProvider ).authStatus );
   }
 
   Future<List<Reminder>> getRemiders() async {
