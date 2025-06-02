@@ -58,6 +58,7 @@ class ReminderFormViewState extends ConsumerState<ReminderFormPage> {
 
     // Mostrar el selector de hora
     await showModalBottomSheet(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (BuildContext builder) {
         return Container(

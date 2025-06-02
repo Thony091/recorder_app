@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import 'package:recorder_app/config/services/firebase/firebase.dart';
 import 'package:recorder_app/domain/domain.dart';
 import 'package:recorder_app/infrastructure/infrastructure.dart';
@@ -15,7 +16,7 @@ class UserDatasourceImpl extends UserDatasource {
       );
       return userCredential;
     } catch (e) {
-      print('Error de autentificación: $e');
+      debugPrint('Error de autentificación: $e');
       throw CustomError("Errrrror: ${e.toString()}");
     }
 

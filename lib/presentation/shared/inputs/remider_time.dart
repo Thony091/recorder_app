@@ -13,7 +13,7 @@ class RemiderTime extends FormzInput<String, RemiderTimeError> {
   const RemiderTime.pure() : super.pure('');
 
   // Call super.dirty to represent a modified form input.
-  const RemiderTime.dirty(String value) : super.dirty(value);
+  const RemiderTime.dirty(super.value) : super.dirty();
 
   String? get errorMessage {
     if (isValid || isPure) return null;

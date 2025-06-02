@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/config.dart';
 import 'package:recorder_app/domain/domain.dart';
@@ -31,7 +32,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if ( ref.read( authProvider ).authStatus == AuthStatus.authenticated ) {
       getRemiders();
     }
-    print( ref.read( authProvider ).authStatus );
   }
 
   Future<List<Reminder>> getRemiders() async {
@@ -53,7 +53,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return reminders;
       
     } catch (e) {
-      print("Error getting reminders: $e");
+      debugPrint("Error getting reminders: $e");
       return [];
     }
 

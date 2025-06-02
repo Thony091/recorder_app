@@ -11,7 +11,7 @@ class DescriptionForm extends FormzInput<String, DescriptionFormError> {
   const DescriptionForm.pure() : super.pure('');
 
   // Call super.dirty to represent a modified form input.
-  const DescriptionForm.dirty( String value ) : super.dirty(value);
+  const DescriptionForm.dirty( super.value ) : super.dirty();
 
 
 

@@ -17,8 +17,7 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService{
     switch(T) {
       case int:
         return prefs.getInt( key ) as T?;
-        
-
+      
       case String:
         return prefs.getString(key) as T?;
 

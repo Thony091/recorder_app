@@ -18,8 +18,7 @@ Future<void> main() async {
   await NotificationService.initialize(); // Inicializar Notificaciones
 
   // Pedir permisos en iOS
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin
     .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
     ?.requestPermissions(
@@ -61,6 +60,7 @@ class MainApp extends ConsumerWidget {
         routerConfig: appRouter,
         locale: DevicePreview.locale(context),
         builder: DevicePreview.appBuilder,
+        theme: AppTheme().getTheme(),
       ),
     );
   }

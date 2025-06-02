@@ -14,7 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? iconColor;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.styleText = const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w500,),
     required this.startColor,
@@ -26,7 +26,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.iconSize = 20,
     this.iconColor,
     this.onIconPressed, // Constructor modificado para aceptar un callback
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +48,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: bottomRadius, // Redondea las esquinas inferior
+          bottomLeft: bottomRadius,
           bottomRight: bottomRadius,
           topLeft: topRadius,
           topRight: topRadius,
-        ), // Redondea las esquinas
-      ), // Altura predeterminada del AppBar
+        ), 
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,

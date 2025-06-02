@@ -11,7 +11,7 @@ class TitleForm extends FormzInput<String, TitleFormError> {
   const TitleForm.pure() : super.pure('');
 
   // Call super.dirty to represent a modified form input.
-  const TitleForm.dirty( String value ) : super.dirty(value);
+  const TitleForm.dirty( super.value ) : super.dirty();
 
 
 

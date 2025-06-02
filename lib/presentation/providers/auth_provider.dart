@@ -1,5 +1,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recorder_app/config/config.dart';
 import 'package:recorder_app/domain/domain.dart';
@@ -72,7 +73,7 @@ class AuthNotifier extends StateNotifier<AuthState>{
     } catch(e){
       logOut('Error no controlado');
     }
-    print('Status desde logIn(): ${state.authStatus}');
+    debugPrint('Status desde logIn(): ${state.authStatus}');
   }
 
   /// Método privado para establecer el usuario autenticado. 
@@ -86,11 +87,11 @@ class AuthNotifier extends StateNotifier<AuthState>{
       await keyValueStorageService.setKeyValue('token', tokenId);
 
     } else {
-      print('Token ID is null');
+      debugPrint('Token ID is null');
     }
     
     final token = await keyValueStorageService.getValue<String>('token');
-    print('Token guardado?: $token');
+    debugPrint('Token guardado?: $token');
 
     state = state.copyWith(
       user: user,
@@ -111,17 +112,17 @@ class AuthNotifier extends StateNotifier<AuthState>{
       await keyValueStorageService.removeKey('token');
       await keyValueStorageService.removeKey('email');
       await keyValueStorageService.removeKey('password');
-      print('Token eliminado correctamente');
+      debugPrint('Token eliminado correctamente');
       
       state = state.copyWith(
         authStatus: AuthStatus.notAuthenticated,
         user: null,
         errorMessage: errorMessage
       );
-      print('Status desde logOut(): ${state.authStatus}');
+      debugPrint('Status desde logOut(): ${state.authStatus}');
       
     } catch (e) {
-      print(e); 
+      debugPrint(e.toString()); 
     }
   }
 }

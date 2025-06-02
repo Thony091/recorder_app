@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -58,7 +59,7 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        print("📩 Notificación tocada: ${response.payload}");
+        debugPrint("📩 Notificación tocada: ${response.payload}");
       },
     );
   }
@@ -105,7 +106,7 @@ class NotificationService {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    print("⏳ Programando notificación para: ${scheduledDate.toLocal()}");
+    debugPrint("⏳ Programando notificación para: ${scheduledDate.toLocal()}");
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
@@ -126,7 +127,7 @@ class NotificationService {
     required RepeatInterval repeatInterval,
     required DateTime scheduledDate,
   }) async {
-    print(" Programando notificación repetitiva: $repeatInterval");
+    debugPrint(" Programando notificación repetitiva: $repeatInterval");
 
     final intervalo = repeatInterval.toString().split('.').first;
 

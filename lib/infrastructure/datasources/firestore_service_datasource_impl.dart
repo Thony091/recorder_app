@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:recorder_app/domain/domain.dart';
 
 class FirestoreServiceDatasourceImpl implements FirestoreServiceDatasource {
@@ -13,7 +14,7 @@ class FirestoreServiceDatasourceImpl implements FirestoreServiceDatasource {
       await _firestore.collection(collectionName).doc(docName).set(data);
 
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       throw Exception(e.toString());
     }
   }
@@ -30,7 +31,7 @@ class FirestoreServiceDatasourceImpl implements FirestoreServiceDatasource {
 
       return userData.data() as Map<String,dynamic>;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       throw Exception(e.toString());
     }
   }
@@ -40,7 +41,7 @@ class FirestoreServiceDatasourceImpl implements FirestoreServiceDatasource {
     try {
       await _firestore.collection(collectionName).doc(docName).update( data );
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       throw Exception(e.toString());
     }
   }

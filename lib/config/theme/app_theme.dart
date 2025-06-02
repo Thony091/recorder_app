@@ -17,12 +17,10 @@ class AppTheme {
       primary: primary,
       secondary: secondary,
       surface: background,
-      background: background,
       error: Colors.redAccent,
       onPrimary: Colors.white, // text color on the primary color
       onSecondary: Colors.white,
       onSurface: Colors.black,
-      onBackground: Colors.black,
       onError: Colors.white,
     ),
     textTheme: const TextTheme(
@@ -51,10 +49,16 @@ class AppTheme {
         color: Colors.black87,
       ), // For little descriptions
       labelLarge: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: secondary,
-      ), // For buttons like "Watch List"
+        color: Colors.white,
+        fontSize: 25,
+        fontWeight: FontWeight.bold, 
+      ), // For Drawer Title
+      labelMedium: TextStyle(
+        color: Colors.black54,
+        fontFamily: 'Montserrat',
+        fontWeight: FontWeight.w400,
+        fontSize: 22
+      ), // For drawer Tile Titles
     ),
   );
 

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +33,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
     
     final authStatus    = ref.watch( authProvider ).authStatus;
     final homeNotifier  = ref.watch( homeProvider.notifier );
+    final textTheme     = AppTheme().getTheme().textTheme;
     
     return NavigationDrawer(
       selectedIndex: navDrawerIndex,
@@ -47,15 +48,9 @@ class SideMenuState extends ConsumerState<SideMenu> {
             decoration: BoxDecoration(
               color: color.primary,
             ),
-            child: const Text(
+            child: Text(
               'Recorder Assist App', 
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-                
-              )
-              
+              style: textTheme.labelLarge,
             ),
           ),
 
@@ -72,18 +67,11 @@ class SideMenuState extends ConsumerState<SideMenu> {
                 size: 15,
                 color: Colors.black54,
               ),
-              title: const Text(
+              title: Text(
                 'Inicio Sesion',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 22
-                ),
+                style: textTheme.labelMedium,
               ),
-              onTap: () {
-                context.push('/login');
-              },
+              onTap: () => context.push('/login'),
             ),
 
           //* Home
@@ -98,14 +86,9 @@ class SideMenuState extends ConsumerState<SideMenu> {
                 size: 15,
                 color: Colors.black54,
               ),
-              title: const Text(
+              title: Text(
                 'Home',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 22
-                ),
+                style: textTheme.labelMedium,
               ),
               onTap: () {
                 context.push('/');
@@ -124,14 +107,9 @@ class SideMenuState extends ConsumerState<SideMenu> {
                 size: 15,
                 color: Colors.black54,
               ),
-              title: const Text(
+              title: Text(
                 'Salir',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 22
-                ),
+                style: textTheme.labelMedium,
               ),
               onTap: () {
                 ref.read( authProvider.notifier ).logOut().then( 

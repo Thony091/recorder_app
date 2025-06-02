@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -109,7 +110,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
 
     } catch (e) {
       state = state.copyWith(isPosting: false);
-      print("Error creando recordatorio: $e");
+      debugPrint("Error creando recordatorio: $e");
       throw Exception(e.toString());
     }
 
@@ -199,7 +200,7 @@ class RemiderFormNotifier extends StateNotifier<RemiderFormState> {
           repeatInterval = RepeatInterval.weekly;
           break;
         default:
-          print("⏳ Frecuencia no soportada para notificaciones repetitivas.");
+          debugPrint("⏳ Frecuencia no soportada para notificaciones repetitivas.");
           return;
       }
 
